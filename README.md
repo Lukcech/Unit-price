@@ -1,55 +1,19 @@
 
-Dynamic Unit Price Display
-This feature dynamically calculates and displays the price per single unit (e.g., price per piece) on the Shopify product page. The calculation updates in real-time when the customer selects a different product variant.
+Case Study: Dynamic Unit Price Calculation in Shopify
+Summary
+This project involved the implementation of a custom-built solution for a Shopify store to dynamically calculate and display a product's unit price (e.g., price per piece). The feature updates in real-time as the customer selects a different product variant, providing transparent price information for easier comparison.
 
-The entire implementation is self-contained within the product.liquid file to ensure it works reliably, bypassing potential theme-specific issues with external CSS and JavaScript file loading.
+The Problem
+The client needed to display a calculated price per single unit for products sold in packages of varying sizes (e.g., 25 pcs, 21 pcs, 19 pcs). The standard Shopify product page only showed the total price for the entire package. The goal was to ensure this unit price updated instantly and reliably whenever a customer selected a different variant (package size).
 
-Prerequisites: Metafield Setup
-Before using this feature, a Variant Metafield must be configured in the Shopify store settings.
+The Solution
+Given the specifics of the theme and challenges with external asset loading, the final solution was engineered as a self-contained module directly within the product.liquid template. This approach ensures stability and independence from the theme's core scripts. The module consists of three main parts:
 
-Go to: Settings -> Custom data -> Variants
+Data Layer: A server-side Liquid script generates a global window.variantMetafields JavaScript object. This object maps each variant's ID to its corresponding unit count, which is pulled from a custom metafield (custom.pocet_kusu_v_baleni), making the data available on the client-side.
 
-Click: Add definition
+HTML & CSS: A simple <div class="unit-price"></div> element is inserted into the DOM to act as a placeholder. An embedded <style> block contains all necessary CSS rules to control the element's appearance and ensure it correctly wraps to a new line within its parent flexbox container.
 
-Name: Unit Count
+Logic: A self-contained JavaScript module listens for the standard 'change' event on the product form. When a new variant is selected, it triggers an updateUnitPrice function. This function performs the calculation (variant price / unit count), formats the result as local currency using the Intl.NumberFormat API, and dynamically injects it into the HTML placeholder. The script also handles the initial page load to display the price for the default selected variant.
 
-Namespace and key: custom.pocet_kusu_v_baleni
-
-Content type: Number -> Integer
-
-This metafield will be used to store the number of items for each product variant.
-
-Implementation Details
-The solution consists of a single block of code added to the product.liquid template, placed directly after the main product price </span> element. This block contains three parts:
-
-1. Data Script
-A <script> tag generates a global JavaScript object named window.variantMetafields. This object is populated on the server-side using Liquid and contains a map of all variant IDs to their corresponding pocet_kusu (unit count) from the metafields. This makes the data available for client-side processing.
-
-2. HTML & CSS
-A simple <div class="unit-price"></div> is added as a placeholder for the output.
-
-An embedded <style> block targets the .unit-price class. It uses flex-basis: 100% to ensure the element always appears on a new line (even within a flexbox container) and applies all necessary font, color, and margin styles.
-
-3. JavaScript Logic
-A self-contained <script> block, wrapped in a DOMContentLoaded event listener, performs the following actions:
-
-It defines an updateUnitPrice function responsible for the calculation and DOM manipulation.
-
-It attaches an event listener to the product form ([data-product-form]) that listens for the standard 'change' event.
-
-When the event fires, it retrieves the new variant data from the event.dataset.variant property (a behavior specific to this theme).
-
-It calls the updateUnitPrice function with the new variant data, which then updates the innerHTML and display style of the .unit-price element.
-
-The script also handles the initial page load by running the updateUnitPrice function for the default selected variant.
-
-How to Use
-For any product, navigate to the variant you wish to edit in the Shopify Admin.
-
-Scroll down to the Metafields section.
-
-Enter the number of units (e.g., 25) into the Unit Count (pocet_kusu_v_baleni) metafield.
-
-Save the variant.
-
-The unit price will now automatically appear and function on the product page for any variant where this metafield has a value greater than zero.
+The Result
+The new feature provides customers with clear and instant information about the price per unit, improving the user experience and price transparency. The solution is fully dynamic and robust.
